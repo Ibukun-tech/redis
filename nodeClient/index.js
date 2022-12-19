@@ -1,7 +1,35 @@
 const os = require("os");
 const { resolve } = require("path");
 const { uptime } = require("process");
+const io = require("socket.io-client");
+const socket = io("http://127.0.0.1:2000");
 // Required to get the cpu details
+socket.on("connect", () => {
+  // console.log("you have connected to the backend server");
+  const networkInterface = os.networkInterfaces();
+  let macA;
+  for (let keys in networkInterface) {
+    if (!networkInterface[keys][0].internal) {
+      macA = networkInterface[keys][0].mac;
+      break;
+    }
+  }
+  cpuPerformance().then((data) => {
+    // console.log(data);
+    socket.emit("initPerfData", data);
+  });
+  // socket.emit("initPerData", );
+  let perfDataInterval = setInterval(() => {
+    cpuPerformance().then((data) => {
+      // console.log(data);
+      data.macA = macA;
+      socket.emit("perfData", data);
+    });
+  }, 1000);
+  socket.on("disconnect", () => {
+    clearInterval(perfDataInterval);
+  });
+});
 function cpuPerformance() {
   return new Promise(async (resolve, reject) => {
     const cpu = os.cpus();
@@ -55,7 +83,7 @@ function cpuAverage() {
     total: totalMs / cpu.length,
   };
 }
-console.log(cpuAverage());
+// console.log(cpuAverage());
 function getCpuLoad() {
   return new Promise((resolve, reject) => {
     const start = cpuAverage();
@@ -71,5 +99,5 @@ function getCpuLoad() {
   });
 }
 cpuPerformance().then((data) => {
-  console.log(data);
+  // console.log(data);
 });

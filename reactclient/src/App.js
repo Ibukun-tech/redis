@@ -1,7 +1,14 @@
-import logo from './logo.svg';
-import './App.css';
-
+import logo from "./logo.svg";
+import { useState } from "react";
+import "./App.css";
+import socket from "./utilities/socketConneection";
 function App() {
+  const [perfData, setPerfData] = useState({});
+  useEffect(() => {
+    socket.on("perfData", (data) => {
+      console.log(data);
+    });
+  }, [socket]);
   return (
     <div className="App">
       <header className="App-header">

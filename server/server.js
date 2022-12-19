@@ -2,13 +2,13 @@ const express = require("express");
 const cluster = require("cluster");
 const net = require("net");
 const socketIo = require("socket.io");
-
+const socketMain = require("./socketMain");
 const port = 2000;
 const processes = require("os").cpus().length;
 
 const io_redis = require("socket.io-redis");
 const farmHash = require("farmhash");
-console.log(cluster);
+// console.log(cluster);
 if (cluster.isMaster) {
   let workers = [];
   let spawn = function (i) {
@@ -33,4 +33,16 @@ if (cluster.isMaster) {
   let app = express();
   const server = app.listen(0, "localhost");
   const io = socketIo(server);
+  io.adapter(io_redis({ host: "localhost", port: 6379 }));
+  io.on("connection", (socket) => {
+    socketMain(io, socket);
+  });
+  // socketMain(io, null);
+  process.on("message", (message, connection) => {
+    if (message !== "sticky-session:connection") {
+      return;
+    }
+
+    server.emit("connection", connection);
+  });
 }
