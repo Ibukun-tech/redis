@@ -11,12 +11,14 @@ mongoose
 const socketMain = (io, socket) => {
   let macA;
   console.log("someone just connected");
+  // socket.on("client", "react just connected");
   socket.on("initPerData", async (data) => {
     macA = data.macA;
     // await machineModel.create({ ...data });
     const valFromDatabase = await checkAndFind(data);
     console.log(valFromDatabase);
   });
+
   socket.on("perfData", (data) => {
     // console.log(data);
     io.to("ui").emit("data", data);

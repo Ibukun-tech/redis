@@ -91,7 +91,7 @@ function getCpuLoad() {
       const end = cpuAverage();
       const idleDifference = end.idle - start.idle;
       const totalDifference = end.total - start.total;
-      console.log(idleDifference, totalDifference);
+      // console.log(idleDifference, totalDifference);
       const percentageCpu =
         100 - Math.floor(100 * (idleDifference / totalDifference));
       resolve(percentageCpu);

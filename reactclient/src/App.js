@@ -1,30 +1,34 @@
-import logo from "./logo.svg";
-import { useState } from "react";
+// import logo from "./logo.svg";
+import { useState, useEffect } from "react";
 import "./App.css";
 import socket from "./utilities/socketConneection";
+import Widget from "./component/widget";
+socket.on("data", (data) => {
+  console.log(data);
+});
 function App() {
-  const [perfData, setPerfData] = useState({});
+  console.log(socket);
+
+  socket.on("data", (data) => {
+    console.log(data);
+  });
+  const [perfData, setPerfData] = useState(null);
   useEffect(() => {
-    socket.on("perfData", (data) => {
+    socket.on("data", (data) => {
+      let currentValue;
+      currentValue[data.macA] = data;
+      setPerfData(currentValue);
       console.log(data);
     });
-  }, [socket]);
+  });
+  console.log(perfData);
+  const widgets = [];
+  widgets.push(perfData);
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      {widgets.map((vals) => {
+        <Widget key={vals.macA} body={vals.data} />;
+      })}
     </div>
   );
 }
